@@ -13,6 +13,8 @@ import OrderPlace from "./Components/OrderPlace";
 import Profile from "./Components/Profile";
 import Admin from "./Components/Admin";
 import Adminpanel from "./Components/Adminpanel";
+import AddnewProduct from "./Components/AddnewProduct";
+
 
 function App() {
   let data = sessionStorage.getItem("email");
@@ -26,13 +28,13 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/Signup" element={<Signup />} />
           <Route path="/Detail/:productid" element={<Detail />} />
-          <Route path="/Cart/:no" element={<Cart />} />
+          <Route path="/Cart" element={<Cart />} />
           <Route path="/pay/:price" element={<Payment />} />
           <Route path="/OrderPlace/:productid" element={<OrderPlace />} />
           <Route path="/profile/:userid" element={<Profile />} />
           <Route path="/Admin" element={<Admin/>} />
           <Route path="/Adminpanel" element={<Adminpanel/>} />
-
+          <Route path="/AddnewProduct" element={<AddnewProduct/>} />
         </Route>
       </Routes>
       <Header />

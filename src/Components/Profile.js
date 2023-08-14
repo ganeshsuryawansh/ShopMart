@@ -23,26 +23,37 @@ const Profile = () => {
         }
 
         const fetchProductData = async () => {
-            setLoading(true);
-            const productPromises = cartpid.map(p => {
-                if (p.productid === 100) {
-                    console.log("no product");
-                    return Promise.resolve(null);
-                    setLoading(true);
-                }
+            try {
+                // This will help us see the current cart product IDs being processed
+                console.log("Fetching data for cart products:", cartpid.map(p => p.productid));
 
-                const _doc = doc(db, "Products", p.productid || Number(p.productid));
-                return getDoc(_doc);
-            });
+                const productPromises = cartpid.map(p => {
+                    if (p.productid === 100) {
+                        console.log("No product for product ID:", p.productid);
+                        return Promise.resolve(null);
+                    }
 
-            const productDocs = await Promise.all(productPromises);
-            const products = productDocs.map(_data => (_data.exists() ? _data.data() : null));
-            setPrd(products);
-            setLoading(false);
+                    const _doc = doc(db, "Products", p.productid);
+                    return getDoc(_doc);
+                });
+
+                const productDocs = await Promise.all(productPromises);
+                const products = productDocs.map(_data => (_data.exists() ? _data.data() : null));
+
+                // This will help us see the fetched product data
+                console.log("Fetched product data:", products);
+
+                setPrd(products);
+            } catch (error) {
+                // This will capture any errors during the fetching process
+                console.error("Error fetching product data:", error);
+                // You can consider setting some state variable to display the error to the user or handle it in another manner
+            }
         };
 
         fetchProductData();
     }, [cartpid]);
+
 
 
     //get userdata from db
@@ -78,9 +89,7 @@ const Profile = () => {
             if (querySnapshot.empty) {
                 console.log("User not found");
                 setLoading(true);
-
                 return;
-
             }
 
             // Create an array to hold all the user's orders
@@ -173,7 +182,7 @@ const Profile = () => {
                                             <td className='border p-2'>{p.Paymentid}</td>
                                             <td className='border p-2'>{p.productid}</td>
                                             <td className='border p-2'>{dateString}</td>
-                                            <td className='border p-2'><Link to={`/OrderPlace/${p.productid}`}>Details</Link></td>
+                                            <td className='border p-2 text-blue-700'><Link to={`/OrderPlace/${p.productid}`}>Details</Link></td>
                                         </tr>);
                                     })
                                 }

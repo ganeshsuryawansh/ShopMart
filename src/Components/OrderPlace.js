@@ -6,7 +6,7 @@ import { db } from '../Firebase';
 import { useParams } from 'react-router-dom';
 import img from './Static/Cart-empty.gif';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-import {  memo } from "react";
+import { memo } from "react";
 
 const OrderPlace = () => {
   let data = sessionStorage.getItem("email");
@@ -14,6 +14,7 @@ const OrderPlace = () => {
   const [paydata, setpayData] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  console.log(data, productid);
   //get user Order data from db
   useEffect(() => {
     setLoading(true);
@@ -24,7 +25,7 @@ const OrderPlace = () => {
       const querySnapshot = await getDocs(q);
 
       if (querySnapshot.empty) {
-        console.log("User not found");
+        console.log("Data not found");
         return;
       }
       const orders = [];
@@ -35,9 +36,9 @@ const OrderPlace = () => {
       console.log(orders);
       setLoading(false);
     };
+    // window.location.reload();
     fetchUserData();
-  }, [data]);
-
+  }, [data, productid]);
 
   // function to open WhatsApp with pre-filled message
   const openWhatsApp = (message) => {
@@ -46,8 +47,6 @@ const OrderPlace = () => {
 
   return (
     <div className='py-32 flex justify-center items-center h-screen'>
-
-
       {loading ? <div className='flex justify-center items-center h-screen'><img src={img} className='' /> </div> : <div className='bg-gray-100 rounded-xl p-10'>
         {paydata.map((item, index) => {
           const message = `User ID: ${item.userid}\nTransaction ID: ${item.Paymentid}\nDate: ${item.datetime}\nToken: ${item.token}\nProduct ID: ${item.productid}\nPrice: ${item.price}`;

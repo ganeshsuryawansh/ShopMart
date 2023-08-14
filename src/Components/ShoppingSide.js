@@ -5,9 +5,14 @@ import { Link } from 'react-router-dom';
 import { BallTriangle } from 'react-loader-spinner'
 import { addDoc, query, where } from "firebase/firestore";
 import img from './Static/Cart-empty.gif';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import { SkeletonTheme } from 'react-loading-skeleton';
+import DesktopViewSkeleton from './DesktopViewSkeleton';
 
 
 const ShoppingSide = () => {
+  let user = sessionStorage.getItem("email");
   const [loading, setLoading] = useState(false);
   const [allproduct, setProducts] = useState([]);//all product list
   const [category, setCategory] = useState(null);//current category state
@@ -25,6 +30,34 @@ const ShoppingSide = () => {
 
   const handleCate = (event) => {
     setCategory("");
+  }
+
+  //add new product to cart db
+  const addProductToCart = async (pid) => {
+    try {
+      const cartRef = collection(db, 'Cart');
+      const q2 = query(cartRef, where('token', '==', pid + "_" + user));
+
+      const querySnapshot = await getDocs(q2);
+      if (querySnapshot.empty) {
+        // Product is not in the cart for the user, add it
+        const docRef = await addDoc(collection(db, "Cart"), {
+          productid: pid,
+          userid: user,
+          token: pid + "_" + user,
+          userqt: 1
+        });
+        console.log("Document added with ID: ", docRef.id);
+      } else {
+        console.log("Data Exists in Db...");
+      }
+    } catch (error) {
+      console.error("Error in addProductToCart: ", error);
+    }
+  };
+
+  const AddNewCart = (p) => {
+    addProductToCart(p);
   }
 
   //fetch all data and category wise data.
@@ -85,13 +118,15 @@ const ShoppingSide = () => {
     fetchData();
   }, [category])
 
+
+
   return (
     <>
       <div className='flex flex-col sm:flex-row h-screen sm:overflow-hidden '>
 
         {/* sidebar */}
-        <div className='bg-gray-200 pt-20 sm:w-1/4 flex flex-row sm:flex-col sm:sticky sm:top-0 sm:h-full'>
-          <div className='sm:overflow-auto'>
+        <div className='bg-gray-200 pt-16 sm:w-1/4 flex flex-row sm:flex-col sm:sticky sm:overflow-auto sm:top-0 sm:h-full'>
+          <div className=''>
             <form className='block sm:hidden focus:outline-none px-2'>
               <select value={category} onChange={handleChange}>
                 <option value="Shoes">Shoes</option>
@@ -115,17 +150,15 @@ const ShoppingSide = () => {
               <button className='bg-yellow-500 px-1 rounded mx-2 my-1' onClick={(p) => { setCategory("phone") }}>Phone</button>
               <button className='bg-yellow-500 px-1 rounded mx-2 my-1' onClick={(p) => { setCategory("Kitchen") }}>Kitchen</button>
               <button className='bg-yellow-500 px-1 rounded mx-2 mt-2' onClick={(p) => { setCategory(""); setFbrand("") }}>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                </svg>
+                Reset
               </button>
             </div>
 
 
           </div>
 
-          {brand ? <h1 className='text-center text-xl hidden sm:block'>Top Brands</h1> : ""}
-          <div className='px-5 hidden sm:block'>
+          {brand ? <h1 className='text-center text-xl hidden '>Top Brands</h1> : ""}
+          <div className='px-5 hidden '>
             {//brands filter
               brand && brand.map((b) => {
                 return <>
@@ -154,10 +187,18 @@ const ShoppingSide = () => {
         </div>
 
         {/*main content */}
-        <div className='flex flex-wrap items-center justify-center sm:px-20 pt-20 sm:w-3/4 overflow-auto'>
-          {/*loading ? <div className='w-full h-full flex justify-center items-center'><BallTriangle className='w-full h-full' /></div> : ""*/}
-          {loading ? <div className='flex justify-center items-center h-screen'><img src={img} className='' /> </div> : ""}
+        <div className='flex flex-wrap sm:pt-16 items-center justify-center sm:px-20 sm:w-3/4 overflow-auto'>
+          {loading ? "" : ""}
 
+
+          {loading ? (
+            <>
+
+              {Array(20).fill(null).map((_, idx) => (
+                <DesktopViewSkeleton key={idx} />
+              ))}
+            </>
+          ) : ""}
           {loading ? "" : allproduct.map((product) => (
             <div key={product.id} className=''>
               {/** desktop view */}
@@ -173,7 +214,7 @@ const ShoppingSide = () => {
                     <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">RS.{product.price}</p>
                   </Link>
                   <a className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-500 rounded-lg hover:bg-yellow-600 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-yellow-500 dark:hover:bg-yellow-700 dark:focus:ring-blue-800">
-                    <button className=''><Link to={`/Cart/${product.productid}`}>Add To Cart</Link> </button>
+                    <button onClick={() => { AddNewCart(product.productid) }} className=''>Add To Cart</button>
 
                     <svg className="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
                       <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
@@ -191,7 +232,7 @@ const ShoppingSide = () => {
                     <div className="flex flex-row justify-between">
                       <div className="flex flex-row justify-between">
                         <a className="inline-flex items-center px-3 py-2 text-sm font-medium text-center">
-                          <button className='bg-yellow-300 rounded px-1'><Link to={`/Cart/${product.productid}`}>Add To Cart</Link></button>
+                          <button onClick={() => { AddNewCart(product.productid) }} className='bg-yellow-300 rounded px-1'>Add To Cart</button>
                         </a>
                         <p className="pt-3 px-1">RS.{product.price}</p>
                       </div>
@@ -204,6 +245,7 @@ const ShoppingSide = () => {
                   </div>
                 </div>
               </div>
+
             </div>
 
           ))}

@@ -17,13 +17,11 @@ const Admin = () => {
 
     const userRef = collection(db, 'Admin');
     const q3 = query(userRef, where('id', '==', email));
-
     const checkid = await getDocs(q3);
     if (checkid.empty) {
       alert("user not found");
       return;
     }
-
     checkid.forEach(doc => {
       if (doc.data().password == userpassword) {
         console.log("logged in Successfully !");
@@ -67,7 +65,6 @@ const Admin = () => {
                   </div>
                 </div>
                 <button type="submit" onClick={handleSubmit} className="w-full text-black bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Login</button>
-
               </form>
             </div>
           </div>

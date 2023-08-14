@@ -17,6 +17,7 @@ const Payment = () => {
     const scriptLoaded = useRef(false);
     const [usrdata, setusrData] = useState();
     const [payment, setPayment] = useState(false);
+    const [lock, setLock] = useState(false);//if lock user already paid for these product not able to pay again 
     const [data, setData] = useState({// product data
         image: "",
         name: "",
@@ -38,14 +39,32 @@ const Payment = () => {
         document.body.appendChild(script);
     }, []);
 
+    //pay or not
+    useEffect(() => {
+        try {
+            const PayRef = collection(db, 'Payments');
+            const q2 = query(PayRef, where('token', '==', data.productid + "_" + user));
+            const querySnapshot = getDocs(q2);
+            if (querySnapshot.empty) {
+                setLock(false);
+            } else {
+                setLock(true);
+                console.log("Data Exists in Db...");
+                //alert("You Already Paid For these Product")
+            }
+        } catch (error) {
+            console.error("Error in addpaymentdata: ", error);
+        }
+    }, [user, lock])
+
     //add payment details in db
     const addPaymentDetails = async (payid) => {
         try {
             const PayRef = collection(db, 'Payments');
             const q2 = query(PayRef, where('token', '==', data.productid + "_" + user));
-
             const querySnapshot = await getDocs(q2);
             if (querySnapshot.empty) {
+                setLock(false);
                 // Product is not in the cart for the user, add it
                 const docRef = await addDoc(collection(db, "Payments"), {
                     productid: data.productid,
@@ -55,15 +74,20 @@ const Payment = () => {
                     Paymentid: payid,
                     price: price
                 });
-                console.log("Document written with ID: ", docRef.id);
+                //alert("Document written with ID: ", docRef.id);
+                console.log("data Added in DB....");
             } else {
+                setLock(true)
                 console.log("Data Exists in Db...");
+                alert("You Already Paid For these Product")
             }
         } catch (error) {
             console.error("Error in addpaymentdata: ", error);
         }
     };
-
+    const payAlert = () => {
+        alert("You Already Paid for these Product...")
+    }
 
     //make payment
     const handlePayment = () => {
@@ -78,14 +102,12 @@ const Payment = () => {
             "description": data.name,
             //"image": "https://example.com/your_logo.jpg",
             "handler": function (response) {
-                //alert("Order Placed With ID:", response.razorpay_payment_id);
-                //alert(response.razorpay_order_id);
-                //alert(response.razorpay_signature);
 
                 if (response.razorpay_payment_id) {
                     addPaymentDetails(response.razorpay_payment_id);
                     setPayment(true);
-                    navigate(`/OrderPlace/${data.productid}`)
+                    navigate(`/Profile/${user}`)
+                    //window.location.reload();
                 }
             },
             "prefill": {
@@ -97,7 +119,6 @@ const Payment = () => {
                 "color": "#F37254"
             }
         };
-
         var rzp1 = new window.Razorpay(options);
         rzp1.open();
     };
@@ -146,6 +167,7 @@ const Payment = () => {
         }
     }, [productid]); // add productid as a dependency
 
+
     return (
         <div className='py-32'>
             {loading ? <div className='flex justify-center items-center h-screen'><img src={img} className='' /> </div> : <div className='sm:mx-24'>
@@ -167,10 +189,9 @@ const Payment = () => {
                             <p>{usrdata.address}</p>
                             <p>{usrdata.phone}</p>
                             <p>{usrdata.id}</p>
-
                         </div>}
                         <div className='flex justify-center items-center '>
-                            <button className='bg-orange-600 sm:ml-32 px-10 py-3 rounded text-center flex justify-center' onClick={handlePayment}>Proceed To Payment</button>
+                            {lock ? <button onClick={payAlert} className='bg-orange-600 sm:ml-32 px-10 py-3 rounded text-center flex justify-center' >Proceed To Payment</button> : <button className='bg-orange-600 sm:ml-32 px-10 py-3 rounded text-center flex justify-center' onClick={handlePayment}>Proceed To Payment</button>}
                         </div>
                     </div>
 
