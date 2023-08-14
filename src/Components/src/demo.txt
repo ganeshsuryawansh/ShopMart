@@ -1,0 +1,7 @@
+
+          <button className='bg-yellow-500 px-1 rounded mx-2 my-1' onClick={(p)=>{ setCategory("Shoes")}}>Shoes</button>
+          <button className='bg-yellow-500 px-1 rounded mx-2 my-1' onClick={(p)=>{ setCategory("Watches")}}>Watches</button>
+          <button className='bg-yellow-500 px-1 rounded mx-2 my-1' onClick={(p)=>{ setCategory("Laptops")}}>Laptops</button>
+          <button className='bg-yellow-500 px-1 rounded mx-2 my-1' onClick={(p)=>{ setCategory("CCTV")}}>CCTV</button>
+          <button className='bg-yellow-500 px-1 rounded mx-2 my-1' onClick={(p)=>{ setCategory("phone")}}>Phone</button>
+          <button className='bg-yellow-500 px-1 rounded mx-2 my-1' onClick={(p)=>{ setCategory("Kitchen")}}>Kitchen</button>
