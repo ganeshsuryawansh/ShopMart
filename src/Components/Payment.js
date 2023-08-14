@@ -191,7 +191,7 @@ const Payment = () => {
                             <p>{usrdata.id}</p>
                         </div>}
                         <div className='flex justify-center items-center '>
-                            {lock ? <button onClick={payAlert} className='bg-orange-600 sm:ml-32 px-10 py-3 rounded text-center flex justify-center' >Proceed To Payment</button> : <button className='bg-orange-600 sm:ml-32 px-10 py-3 rounded text-center flex justify-center' onClick={handlePayment}>Proceed To Payment</button>}
+                          <button className='bg-orange-600 sm:ml-32 px-10 py-3 rounded text-center flex justify-center' onClick={handlePayment}>Proceed To Payment</button>
                         </div>
                     </div>
 
