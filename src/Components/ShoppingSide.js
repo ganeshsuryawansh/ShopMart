@@ -5,9 +5,6 @@ import { Link } from 'react-router-dom';
 import { BallTriangle } from 'react-loader-spinner'
 import { addDoc, query, where } from "firebase/firestore";
 import img from './Static/Cart-empty.gif';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
-import { SkeletonTheme } from 'react-loading-skeleton';
 import DesktopViewSkeleton from './DesktopViewSkeleton';
 
 
